@@ -73,3 +73,23 @@ class Dummy( bt.Synapse ):
         5
         """
         return self.dummy_output
+
+class PromptingTemplate( bt.Synapse ):
+
+    # Required request input, filled by sending dendrite caller.
+    prompt_input: dict
+
+    # Optional request output, filled by recieving axon.
+    prompt_output: typing.Optional[dict] = None
+
+    def deserialize(self) -> dict:
+        """
+        Deserialize the dummy output. This method retrieves the response from
+        the miner in the form of dummy_output, deserializes it and returns it
+        as the output of the dendrite.query() call.
+
+        Returns:
+        - dict: The deserialized response, which in this case is the value of dummy_output.
+        """
+
+        return self.prompt_output

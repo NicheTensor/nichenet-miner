@@ -57,7 +57,9 @@ python -m pip install -e .
 Once you have installed this repo and attained your subnet via the instructions in the nested docs (staging, testing, or main) you can run the miner and validator with the following commands.
 ```bash
 # To run the miner
-python -m neurons/miner.py 
+python -m neurons/miner.py
+    --url <your miner url> # URL where the miner will be hosted, must be accessible by validators
+    --model_name <miner model name> # Name of the miner model you are serving
     --netuid <your netuid>  # Must be attained by following the instructions in the docs/running_on_*.md files
     --subtensor.chain_endpoint <your chain url>  # Must be attained by following the instructions in the docs/running_on_*.md files
     --wallet.name <your miner wallet> # Must be created using the bittensor-cli
