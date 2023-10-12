@@ -44,8 +44,6 @@ class OpenAIMiner(BaseMiner):
 
     def generate(self, question, max_tokens):
 
-        time.sleep(30)
-
         messages = [
             {"role": "system", "content": self.system_prompt},
             {"role": "user", "content": question},
