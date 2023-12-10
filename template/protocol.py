@@ -1,7 +1,7 @@
 import typing
 import bittensor as bt
 
-class PromptingTemplate( bt.Synapse ):
+class PromptingProtocol( bt.Synapse ):
 
     # Required request input, filled by sending dendrite caller.
     prompt_input: dict

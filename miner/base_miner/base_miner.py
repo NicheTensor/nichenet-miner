@@ -37,7 +37,7 @@ class BaseMiner:
 
     # The following functions control the miner's response to incoming requests.
     # The blacklist function decides if a request should be ignored.
-    def blacklist_fn(self, synapse: template.protocol.PromptingTemplate ) -> typing.Tuple[bool, str]:
+    def blacklist_fn(self, synapse: template.protocol.PromptingProtocol ) -> typing.Tuple[bool, str]:
 
         # TODO(developer): Define how miners should blacklist requests. This Function 
         # Runs before the synapse data has been deserialized (i.e. before synapse.data is available).
@@ -61,7 +61,7 @@ class BaseMiner:
 
     # The priority function determines the order in which requests are handled.
     # More valuable or higher-priority requests are processed before others.
-    def priority_fn( self, synapse: template.protocol.PromptingTemplate ) -> float:
+    def priority_fn( self, synapse: template.protocol.PromptingProtocol ) -> float:
 
         # TODO(developer): Define how miners should prioritize requests.
         # Miners may recieve messages from multiple entities at once. This function
@@ -76,7 +76,7 @@ class BaseMiner:
         return prirority
     
         # This is the core miner function, which decides the miner's response to a valid, high-priority request.
-    def prompting(self, synapse: template.protocol.PromptingTemplate ) -> template.protocol.PromptingTemplate:
+    def prompting(self, synapse: template.protocol.PromptingProtocol ) -> template.protocol.PromptingProtocol:
         # TODO(developer): Define how miners should process requests.
         # This function runs after the synapse has been deserialized (i.e. after synapse.data is available).
         # This function runs after the blacklist and priority functions have been called.
