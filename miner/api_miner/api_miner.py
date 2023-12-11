@@ -34,9 +34,16 @@ class APIMiner(BaseMiner):
 
     
     def generate(self, prompt, max_tokens = 1000, timeout=30):
-      prompt = "<prefix><user_start>"+prompt+"<assistant_start>"
-      prompt = self.replace_keywords(prompt)
-      return self.generate_text(prompt, max_tokens=max_tokens, temperature=0.7, timeout=timeout)
+      
+        if max_tokens < 500:
+            print("Max tokens", max_tokens)
+            word_limit = int(max_tokens/2)
+            prompt = prompt + f"\nAnswer in {word_limit} words or less."
+            print("New question", prompt)
+
+        prompt = "<prefix><user_start>"+prompt+"<assistant_start>"
+        prompt = self.replace_keywords(prompt)
+        return self.generate_text(prompt, max_tokens=max_tokens, temperature=0.7, timeout=timeout)
     
 
     def replace_keywords(self,prompt):
@@ -52,6 +59,7 @@ class APIMiner(BaseMiner):
         return prompt
     
     def generate_text(self, input_text, max_tokens=100, temperature = 0.0, timeout=30):
+
         return self.call_endpoint(input_text, max_tokens,temperature=temperature, timeout=timeout)[0]
 
     def call_endpoint(self, prompt, max_tokens, temperature, n=1, timeout=30):

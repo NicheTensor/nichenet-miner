@@ -81,6 +81,8 @@ class BaseMiner:
         # This function runs after the synapse has been deserialized (i.e. after synapse.data is available).
         # This function runs after the blacklist and priority functions have been called.
 
+        start_time = time.time()
+
         category = self.config.category
         tags = []
 
@@ -96,6 +98,10 @@ class BaseMiner:
 
         reply = self.generate(question, max_tokens=max_tokens)
         synapse.prompt_output = {"response": reply, "category": category, "tags": tags}
+        
+        generation_time = str(time.time() - start_time)[:6]
+        bt.logging.info(f"Response succesfully generate in: {generation_time} seconds.")
+
 
         return synapse
     
@@ -146,7 +152,7 @@ class BaseMiner:
                             f'Emission:{self.metagraph.E[self.my_subnet_uid]}')
                     bt.logging.info(log)
                 step += 1
-                time.sleep(1)
+                time.sleep(12)
 
             # If someone intentionally stops the miner, it'll safely terminate operations.
             except KeyboardInterrupt:
