@@ -37,7 +37,7 @@ class BaseMiner:
 
     # The following functions control the miner's response to incoming requests.
     # The blacklist function decides if a request should be ignored.
-    def blacklist_fn(self, synapse: template.protocol.PromptingTemplate ) -> typing.Tuple[bool, str]:
+    def blacklist_fn(self, synapse: template.protocol.PromptingProtocol ) -> typing.Tuple[bool, str]:
 
         # TODO(developer): Define how miners should blacklist requests. This Function 
         # Runs before the synapse data has been deserialized (i.e. before synapse.data is available).
@@ -61,7 +61,7 @@ class BaseMiner:
 
     # The priority function determines the order in which requests are handled.
     # More valuable or higher-priority requests are processed before others.
-    def priority_fn( self, synapse: template.protocol.PromptingTemplate ) -> float:
+    def priority_fn( self, synapse: template.protocol.PromptingProtocol ) -> float:
 
         # TODO(developer): Define how miners should prioritize requests.
         # Miners may recieve messages from multiple entities at once. This function
@@ -76,7 +76,7 @@ class BaseMiner:
         return prirority
     
         # This is the core miner function, which decides the miner's response to a valid, high-priority request.
-    def prompting(self, synapse: template.protocol.PromptingTemplate ) -> template.protocol.PromptingTemplate:
+    def prompting(self, synapse: template.protocol.PromptingProtocol ) -> template.protocol.PromptingProtocol:
         # TODO(developer): Define how miners should process requests.
         # This function runs after the synapse has been deserialized (i.e. after synapse.data is available).
         # This function runs after the blacklist and priority functions have been called.
@@ -87,14 +87,13 @@ class BaseMiner:
         # Return miner category when requested by validator
         get_miner_info = synapse.prompt_input['get_miner_info']
         if get_miner_info:
+            print("Miner info returned to validator", {'category': category, 'tags': tags})
             synapse.prompt_output = {'category': category, 'tags': tags}
             return synapse
 
-        question = synapse.prompt_input['prompt']
-        max_tokens = synapse.prompt_input['max_tokens']
-        max_response_time = synapse.prompt_input['max_response_time']
+        reply = self.generate(synapse.prompt_input)
+        print("Miner Generation", reply)
 
-        reply = self.generate(question, max_tokens=max_tokens)
         synapse.prompt_output = {"response": reply, "category": category, "tags": tags}
 
         return synapse

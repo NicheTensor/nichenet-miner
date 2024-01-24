@@ -23,55 +23,105 @@ class APIMiner(BaseMiner):
                 "Model URL is None: the miner requires an model api endpoint url as an --model.url argument."
             )
         
-        self.prompt_format = {
-            "prefix":"A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.",
-            "assistant_start":'\nASSISTANT:',
-            "assistant_end":'</s>',
+        # self.prompt_format = {
+        #     "prefix":"A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.",
+        #     "assistant_start":'\nASSISTANT:',
+        #     "assistant_end":'</s>',
 
-            "user_start":'\nUSER: ',
-            "user_end":'',
-            }
+        #     "user_start":'\nUSER: ',
+        #     "user_end":'',
+        #     }
 
     
-    def generate(self, prompt, max_tokens = 1000, timeout=30):
-      prompt = "<prefix><user_start>"+prompt+"<assistant_start>"
-      prompt = self.replace_keywords(prompt)
-      return self.generate_text(prompt, max_tokens=max_tokens, temperature=0.7, timeout=timeout)
+    def generate(self, data):     
+        # prompt = "<prefix><user_start>"+prompt+"<assistant_start>"
+        # prompt = self.replace_keywords(prompt)
+        return self.generate_text(data)
     
 
-    def replace_keywords(self,prompt):
+    # def replace_keywords(self,prompt):
 
-        prompt = prompt.replace("<prefix>",self.prompt_format["prefix"])
+    #     prompt = prompt.replace("<prefix>",self.prompt_format["prefix"])
 
-        prompt = prompt.replace("<assistant_start>",self.prompt_format["assistant_start"])
-        prompt = prompt.replace("<assistant_end>",self.prompt_format["assistant_end"])
+    #     prompt = prompt.replace("<assistant_start>",self.prompt_format["assistant_start"])
+    #     prompt = prompt.replace("<assistant_end>",self.prompt_format["assistant_end"])
 
-        prompt = prompt.replace("<user_start>",self.prompt_format["user_start"])
-        prompt = prompt.replace("<user_end>",self.prompt_format["user_end"])
+    #     prompt = prompt.replace("<user_start>",self.prompt_format["user_start"])
+    #     prompt = prompt.replace("<user_end>",self.prompt_format["user_end"])
 
-        return prompt
+    #     return prompt
     
-    def generate_text(self, input_text, max_tokens=100, temperature = 0.0, timeout=30):
-        return self.call_endpoint(input_text, max_tokens,temperature=temperature, timeout=timeout)[0]
+    def generate_text(self, data):
+        return self.call_endpoint(data)
 
-    def call_endpoint(self, prompt, max_tokens, temperature, n=1, timeout=30):
+    # def call_endpoint(self, prompt, data):
 
-        data = {
-            "model": self.model_name,
-            "prompt": prompt,
-            "max_tokens": max_tokens,
-            "temperature": temperature,
-            "n":n,
-            "stop":self.prompt_format["user_start"],
-        }
+    #     max_response_time = data['max_response_time']
+    #     sampling_params = data["sampling_params"]
+    #     max_tokens = sampling_params['max_tokens']
+    #     temperature = sampling_params['temperature']
+    #     n = sampling_params['n']
+
+    #     payload_data = {
+    #         "model": self.model_name,
+    #         "prompt": prompt,
+    #         "max_tokens": max_tokens,
+    #         "temperature": temperature,
+    #         "n":n,
+    #         "stop":self.prompt_format["user_start"],
+    #     }
         
-        response = requests.post(self.model_url, headers={'Content-Type': 'application/json'}, json=data, timeout=timeout)
-        generations = []
-        if response.json().get("choices"):
-            for d in response.json()["choices"]:
-                generations.append(d["text"])
+    #     response = requests.post(self.model_url, headers={'Content-Type': 'application/json'}, json=payload_data, timeout=max_response_time)
+    #     generations = []
+    #     if response.json().get("choices"):
+    #         for d in response.json()["choices"]:
+    #             generations.append(d["text"])
 
-        return generations
+    #     print("Miner Generations", generations)
+
+    #     return generations
+
+    def call_endpoint(self, data):
+
+        max_response_time = data['max_response_time']
+        print("Max RT", max_response_time)
+
+        system = "You are a helpful assistant"
+        
+        if data["system"]:
+            system = data["system"]
+
+        prompt = f"""<|im_start|>system
+{system}<|im_end|>
+<|im_start|>user
+{data["prompt"]}<|im_end|>
+<|im_start|>assistant
+"""
+
+        print("Input prompt", prompt)
+
+        data["prompt"] = prompt
+        payload_data = {key: value for key, value in data.items() if key != "get_miner_info"}
+
+        url = self.model_url
+        headers = {
+            'Content-Type': 'application/json',
+        }
+
+        # print("Miner payload", payload_data)
+
+        response = requests.post(url, headers=headers, json=payload_data, timeout=max_response_time)
+        response_data = response.json()
+
+        print("Miner generated response", response_data[0])
+
+        # generations = []
+        # if response_data:
+        #     for d in response_data:
+        #         generations.append(d["outputs"][0]["text"])
+
+        return response_data[0]
+
 
 def get_config():
 
